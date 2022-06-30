@@ -1,0 +1,51 @@
+.App {
+  text-align: center;
+}
+
+.app-heading{
+  background: lightyellow;
+}
+
+.node-add{
+  padding: 2rem;
+}
+
+.note-heading {
+  text-align: left;
+  margin-left: 5%;
+}
+
+.note-text{
+  white-space: pre-wrap;
+  text-align: left;
+}
+.App-link {
+  color: #61dafb;
+}
+
+.App{
+  height: 100%;
+}
+
+.buttonHover:hover {
+  color:green;
+  background-color: #04c3ee;
+  border-color: #5b288e;
+  transform: scale(1.1);
+}
+
+body {
+  background-image: -webkit-linear-gradient(270deg, #6699ff 0%, #00ffff 100%);
+  background-image: -moz-linear-gradient(270deg, #6699ff 0%, #00ffff 100%);
+  background-image: -o-linear-gradient(270deg, #6699ff 0%, #00ffff 100%);
+  background-image: linear-gradient(180deg, #6699ff 0%, #00ffff 100%);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  margin: 0px;
+  padding: 0px;
+}
+
+
+
+
