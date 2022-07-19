@@ -24,3 +24,18 @@ export async function getNotesAPI(){
             }
         })
 }
+
+// API call to delete a row
+export async function deleteNotesAPI(title){
+    return await fetch('http://localhost:3000/deletenote', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          'title': title,
+        }) 
+
+    }
+)}

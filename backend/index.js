@@ -75,6 +75,27 @@ app.get('/getnotes', async (req, res)=>{
 }
 )
 
+app.delete('/deletenote', async (req,res)=>{
+    var title = req.body.title
+    var delete_query_string = `DELETE FROM notes WHERE title = $1`
+    try {
+        const result = await pool.query(delete_query_string,[title])
+        res.json({
+            isSuccess: true,
+            message: "Success",
+            res: result.rows,
+        })
+    }
+    catch (error){
+        res.json({
+            error: error,
+            isSuccess: false,
+            message: "Failed",
+        })
+    }
+
+})
+
 app.listen(PORT, ()=>{
 console.log(`listening to port ${PORT}`);
 })

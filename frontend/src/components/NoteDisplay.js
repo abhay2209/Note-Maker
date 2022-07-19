@@ -1,6 +1,6 @@
 import React, {useState,useEffect} from 'react';
-import {ListGroup, Modal, Button, Alert} from 'react-bootstrap';
-import { getNotesAPI } from '../Services/services';
+import {ListGroup, Modal, Button, Alert, Table} from 'react-bootstrap';
+import { deleteNotesAPI, getNotesAPI } from '../Services/services';
 
 const modal_prop = {
     minWidth: '40rem',
@@ -13,7 +13,7 @@ const modal_prop = {
     zIndex: '2'
 }
 
-const listPropertiesEnable = {
+const listProperties = {
     width: '30rem',
     textAlign: 'left',
     marginLeft: '5%',
@@ -39,6 +39,13 @@ const alertProperties = {
 
 }
 
+const tableProperties ={
+    width: "40rem",
+    backgroundColor: "white",
+    marginLeft: '5%',
+    
+}
+
 function NoteDisplay(){
 
     const [notes, setNotes] = useState([]);
@@ -48,9 +55,6 @@ function NoteDisplay(){
     const [modalHidden, setModalHidden] = useState(true);      // Handle to show or not show modal
     const [selNoteTitle, setNoteTitle] = useState();           // set title for the list element selected
     const [selNote, setNote] = useState();                     // set not info got list elelemnt selected
-    const [listState, setListHidden] = useState(false);        // Toggle to show the list or not
-
-    const [listCss, setListCss]= useState(listPropertiesEnable)
 
 
     const getNoteList = async () => {
@@ -79,31 +83,39 @@ function NoteDisplay(){
 
         setNoteTitle(note.title);
         setNote(note.notebody);
-
-        setListHidden(true);
-        setListCss(listPropertiesDisable);
     }
 
     // // Close the modal by changing hide state
     function handleClose(){
-        setListHidden(false);
-        setListCss(listPropertiesEnable);
 
         setModalHidden(true);
     }
 
+    
+
     // // Delete note when delete button is clicked 
     function deleteNote(){
-        localStorage.removeItem(selNoteTitle);
-        setAlertHidden(false);
-        window.setTimeout(() => setAlertHidden(true), 1000);
+        deleteNotesAPI(selNoteTitle).then((response) => {
+            response.json().then((response) => {
+                if (response.isSuccess) {
+                    setAlertHidden(false);
+                    window.setTimeout(() => setAlertHidden(true), 1000);
 
-        handleClose();
+                    handleClose();
 
-        setListHidden(false);
-        setListCss(listPropertiesEnable);
+                    getNoteList();
+                    
+                }
+                else{
+                    console.log("Failed with error" + response.error)
+                }
+            })
+        })
+        
+    }
 
-        setNotes(Object.keys(localStorage));
+    function handleEdit(){
+        
     }
 
     return (<div className='d-inline'>
@@ -112,7 +124,8 @@ function NoteDisplay(){
             <Alert.Heading>Note Deleted Successfully</Alert.Heading>
         </Alert>
         :null}
-        {!modalHidden ? 
+        
+            <Modal show={!modalHidden}>
             <Modal.Dialog backdrop={'static'} className='align-middle modal-show' style={modal_prop}>
                 <Modal.Header closeButton onHide={handleClose} >
                     <Modal.Title>{selNoteTitle}</Modal.Title>
@@ -123,19 +136,42 @@ function NoteDisplay(){
                 </Modal.Body>
 
                 <Modal.Footer>
+                    <Button variant="primary" onClick={handleEdit}>Edit Note</Button>
                     <Button variant="danger" onClick={deleteNote}>Delete Note</Button>
                 </Modal.Footer>
+
             </Modal.Dialog>
-                : null} 
+            </Modal>
+                 
+
         <div>
         <h3 className="note-heading">Saved Notes:</h3>
        
-        <ListGroup style={listCss}>
+        <ListGroup style={listProperties}>
                 {notes && notes.map(note => 
-                        <ListGroup.Item disabled = {listState} key={note.title} action onClick={()=>showNote(note)}>{note.title}</ListGroup.Item>
+                        <ListGroup.Item  key={note.title} action onClick={()=>showNote(note)}>{note.title}</ListGroup.Item>
                         
                     )}
         </ListGroup> 
+
+{/* 
+        <Table style={tableProperties} striped bordered hover size="sm">
+                <thead>
+                    <tr>
+                    <th>Note Title</th>
+                    <th>Actions</th>
+                    </tr>
+                </thead>
+            
+                    <tbody>
+                 {notes && notes.map(note => 
+                        
+                        <tr key={note.title}><th  key={note.title} onClick={()=>showNote(note)}>{note.title}</th>
+                        <th><Button key={note.title} onClick={()=>{handleEdit(note)}}>Edit</Button> <Button onClick={(e)=>{console.log(e.target.value)}}>Delete</Button></th></tr>
+                        
+                    )}
+                    </tbody>
+        </Table> */}
         </div>
 
         </div>
