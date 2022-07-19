@@ -7,10 +7,10 @@ import NoteDisplay from './components/NoteDisplay';
 function App() {
   return (
     <div className="App">
-      <NoteCreator></NoteCreator>
-      <NoteDisplay></NoteDisplay>
+      <h1 className="app-heading">NOTE MAKER</h1>
+      <NoteCreator/>
+      <NoteDisplay/>
     </div>
-   
   );
 }
 
