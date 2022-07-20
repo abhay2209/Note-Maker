@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react';
-import {ListGroup, Modal, Button, Alert, Table} from 'react-bootstrap';
+import {ListGroup, Modal, Button, Alert, Table,InputGroup, Form, Container, Row, Col} from 'react-bootstrap';
 import { deleteNotesAPI, getNotesAPI } from '../Services/services';
 
 const modal_prop = {
@@ -53,8 +53,12 @@ function NoteDisplay(){
     const [alertHidden, setAlertHidden] = useState(true);
 
     const [modalHidden, setModalHidden] = useState(true);      // Handle to show or not show modal
+    const [editModal, setEditModal] = useState(true)
+
     const [selNoteTitle, setNoteTitle] = useState();           // set title for the list element selected
     const [selNote, setNote] = useState();                     // set not info got list elelemnt selected
+    const [noteSeverity, setNoteSeverity] = useState();        // how severe is the note
+
 
 
     const getNoteList = async () => {
@@ -83,12 +87,14 @@ function NoteDisplay(){
 
         setNoteTitle(note.title);
         setNote(note.notebody);
+        setNoteSeverity(note.noteimportance);
     }
 
     // // Close the modal by changing hide state
     function handleClose(){
 
         setModalHidden(true);
+        setEditModal(true);
     }
 
     
@@ -115,20 +121,27 @@ function NoteDisplay(){
     }
 
     function handleEdit(){
+        setModalHidden(true)
+        setEditModal(false)
         
     }
 
+    function updateNote(){
+
+    }
+
     return (<div className='d-inline'>
-        {!alertHidden ? 
-        <Alert transition={true} variant="danger" style={alertProperties}>
+        
+        <Alert show={!alertHidden} transition={true} variant="danger" style={alertProperties}>
             <Alert.Heading>Note Deleted Successfully</Alert.Heading>
         </Alert>
-        :null}
+        
         
             <Modal show={!modalHidden}>
             <Modal.Dialog backdrop={'static'} className='align-middle modal-show' style={modal_prop}>
                 <Modal.Header closeButton onHide={handleClose} >
                     <Modal.Title>{selNoteTitle}</Modal.Title>
+                    <p className="float-left">{noteSeverity}</p>
                 </Modal.Header>
 
                 <Modal.Body>
@@ -136,8 +149,60 @@ function NoteDisplay(){
                 </Modal.Body>
 
                 <Modal.Footer>
+                    
                     <Button variant="primary" onClick={handleEdit}>Edit Note</Button>
                     <Button variant="danger" onClick={deleteNote}>Delete Note</Button>
+                </Modal.Footer>
+
+            </Modal.Dialog>
+            </Modal>
+
+            <Modal show={!editModal}>
+            <Modal.Dialog backdrop={'static'} className='align-middle modal-show' style={modal_prop}>
+                <Modal.Header closeButton onHide={handleClose} >
+                    <Modal.Title>
+                        <Container>
+                                 <Row>
+                                <Col md={6}>
+                                <InputGroup className="mb-3">
+                                            <Form.Control
+                                                        onChange={(e)=>{setNoteTitle(e.target.value)}}
+                                                        placeholder="Enter notes title"
+                                                        aria-label="Note title"
+                                                        aria-describedby="basic-addon2"
+                                                        value={selNoteTitle}
+                                            />
+                                </InputGroup>
+                                </Col>
+                                <Col md={6}>
+                                        <Form.Select 
+                                                    onChange={(e) => setNoteSeverity(e.target.value)}
+                                                    defaultValue={noteSeverity}>
+                                                    <option value='regular'>Regular</option>
+                                                    <option value='intermediate'>Intermediate</option>
+                                                    <option value='critical'>Critical</option>
+                                        </Form.Select>
+                                 </Col>
+                                </Row>
+                            </Container>
+                    </Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+               
+                                    <Form.Control
+                                                onChange={(e)=>{setNote(e.target.value)}}
+                                                rows={10}
+                                                as="textarea"
+                                                placeholder="Enter your notes"
+                                                aria-label="note body"
+                                                aria-describedby="basic-addon2"
+                                                value={selNote}
+                                    />
+                                 
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={updateNote}>Update</Button>
                 </Modal.Footer>
 
             </Modal.Dialog>

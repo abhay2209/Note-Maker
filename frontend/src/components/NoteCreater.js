@@ -56,9 +56,15 @@ function NoteCreator(){
     const addNote= async () => {
         addNotesAPI(title, note, severity).then((response) => {response.json().then((response) => {
             if(response.isSuccess){
+                setAlertHidden(false);
+                window.setTimeout(() => setAlertHidden(true), 1000);
                 console.log("Notes Added" + response.message)
             }
             else{
+                if(response.error.code='23505'){
+                    setAlertHidden(false);
+
+                }
                 // Pop up message of failure
                 console.log("Notes failed to add" + response.message)
             }
@@ -72,11 +78,10 @@ function NoteCreator(){
 return (
     <div>
     
-    {!alertHidden ? 
-    <Alert transition={true} variant="success" style={alertProperties}>
+    <Alert show={!alertHidden} transition={true} variant="success" style={alertProperties}>
         <Alert.Heading>Note added Successfully</Alert.Heading>
     </Alert>
-    :null}
+    
     <Form style={formProperties} >
         
         <Form.Group className="mb-3 d-flex flex-column" controlId="exampleForm.ControlTextarea1">
