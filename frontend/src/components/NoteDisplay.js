@@ -1,6 +1,12 @@
 import React, {useState,useEffect} from 'react';
 import {ListGroup, Modal, Button, Alert, Table,InputGroup, Form, Container, Row, Col} from 'react-bootstrap';
-import { deleteNotesAPI, getNotesAPI } from '../Services/services';
+import { deleteNotesAPI, getNotesAPI, updateNoteAPI } from '../Services/services';
+
+// To set the color for my notes
+const colorNotes = new Map([
+    ["regular", {backgroundColor: "lightgreen"}], 
+    ["important", {backgroundColor: "#FBF581"}],
+    ["critical", {backgroundColor: "#FB836C"}]]);
 
 const modal_prop = {
     minWidth: '40rem',
@@ -10,7 +16,7 @@ const modal_prop = {
     paddingBottom: '2rem',
     left: '0',
     right: '0',
-    zIndex: '2'
+    zIndex: '2',
 }
 
 const listProperties = {
@@ -49,12 +55,14 @@ const tableProperties ={
 function NoteDisplay(){
 
     const [notes, setNotes] = useState([]);
+    
 
     const [alertHidden, setAlertHidden] = useState(true);
 
     const [modalHidden, setModalHidden] = useState(true);      // Handle to show or not show modal
     const [editModal, setEditModal] = useState(true)
 
+    const [noteId, setNoteId] = useState()
     const [selNoteTitle, setNoteTitle] = useState();           // set title for the list element selected
     const [selNote, setNote] = useState();                     // set not info got list elelemnt selected
     const [noteSeverity, setNoteSeverity] = useState();        // how severe is the note
@@ -74,6 +82,21 @@ function NoteDisplay(){
     })
     }
 
+    const updateNote = async () => {
+        console.log(noteId ,selNoteTitle + selNote + noteSeverity)
+        updateNoteAPI(noteId, selNoteTitle, selNote, noteSeverity).then((response) => {response.json().then((response) => {
+                if (response.isSuccess) {
+                    getNoteList();
+                }
+                else{
+                    console.log("Error updating notes" + response.error)
+                }
+            })
+        })
+        handleClose()
+    }
+    
+
     useEffect(() => {
         getNoteList()
     }, [])
@@ -85,6 +108,8 @@ function NoteDisplay(){
 
         setModalHidden(false);
 
+        
+        setNoteId(note.id)
         setNoteTitle(note.title);
         setNote(note.notebody);
         setNoteSeverity(note.noteimportance);
@@ -97,11 +122,9 @@ function NoteDisplay(){
         setEditModal(true);
     }
 
-    
-
     // // Delete note when delete button is clicked 
     function deleteNote(){
-        deleteNotesAPI(selNoteTitle).then((response) => {
+        deleteNotesAPI(noteId).then((response) => {
             response.json().then((response) => {
                 if (response.isSuccess) {
                     setAlertHidden(false);
@@ -126,10 +149,6 @@ function NoteDisplay(){
         
     }
 
-    function updateNote(){
-
-    }
-
     return (<div className='d-inline'>
         
         <Alert show={!alertHidden} transition={true} variant="danger" style={alertProperties}>
@@ -137,18 +156,17 @@ function NoteDisplay(){
         </Alert>
         
         
-            <Modal show={!modalHidden}>
+            <Modal  show={!modalHidden} onHide={handleClose}>
             <Modal.Dialog backdrop={'static'} className='align-middle modal-show' style={modal_prop}>
-                <Modal.Header closeButton onHide={handleClose} >
+                <Modal.Header style={colorNotes.get(noteSeverity)} closeButton onHide={handleClose} >
                     <Modal.Title>{selNoteTitle}</Modal.Title>
-                    <p className="float-left">{noteSeverity}</p>
                 </Modal.Header>
 
-                <Modal.Body>
+                <Modal.Body style={colorNotes.get(noteSeverity)}>
                     <p className="note-text">{selNote}</p>
                 </Modal.Body>
 
-                <Modal.Footer>
+                <Modal.Footer style={colorNotes.get(noteSeverity)}>
                     
                     <Button variant="primary" onClick={handleEdit}>Edit Note</Button>
                     <Button variant="danger" onClick={deleteNote}>Delete Note</Button>
@@ -157,7 +175,7 @@ function NoteDisplay(){
             </Modal.Dialog>
             </Modal>
 
-            <Modal show={!editModal}>
+            <Modal show={!editModal} onHide={handleClose}>
             <Modal.Dialog backdrop={'static'} className='align-middle modal-show' style={modal_prop}>
                 <Modal.Header closeButton onHide={handleClose} >
                     <Modal.Title>
@@ -178,9 +196,9 @@ function NoteDisplay(){
                                         <Form.Select 
                                                     onChange={(e) => setNoteSeverity(e.target.value)}
                                                     defaultValue={noteSeverity}>
-                                                    <option value='regular'>Regular</option>
-                                                    <option value='intermediate'>Intermediate</option>
-                                                    <option value='critical'>Critical</option>
+                                                    <option value='regular'>Regular Note</option>
+                                                    <option value='important'>Important Note</option>
+                                                    <option value='critical'>Critical Note</option>
                                         </Form.Select>
                                  </Col>
                                 </Row>
@@ -214,29 +232,10 @@ function NoteDisplay(){
        
         <ListGroup style={listProperties}>
                 {notes && notes.map(note => 
-                        <ListGroup.Item  key={note.title} action onClick={()=>showNote(note)}>{note.title}</ListGroup.Item>
-                        
+                        <ListGroup.Item style={colorNotes.get(note.noteimportance)} key={note.title} action onClick={()=>showNote(note)}>{note.title}</ListGroup.Item>  
                     )}
         </ListGroup> 
 
-{/* 
-        <Table style={tableProperties} striped bordered hover size="sm">
-                <thead>
-                    <tr>
-                    <th>Note Title</th>
-                    <th>Actions</th>
-                    </tr>
-                </thead>
-            
-                    <tbody>
-                 {notes && notes.map(note => 
-                        
-                        <tr key={note.title}><th  key={note.title} onClick={()=>showNote(note)}>{note.title}</th>
-                        <th><Button key={note.title} onClick={()=>{handleEdit(note)}}>Edit</Button> <Button onClick={(e)=>{console.log(e.target.value)}}>Delete</Button></th></tr>
-                        
-                    )}
-                    </tbody>
-        </Table> */}
         </div>
 
         </div>

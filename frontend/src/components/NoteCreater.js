@@ -1,8 +1,8 @@
 
 import React, {useState, useEffect} from 'react';
-import { Button, Form, Alert} from 'react-bootstrap';
-import { addNotesAPI,getNotesAPI } from '../Services/services';
-import NoteDisplay from './NoteDisplay';
+import { Button, Form, Alert, Container, Row, Col} from 'react-bootstrap';
+import { addNotesAPI, getNotesAPI} from '../Services/services';
+
 
 const formProperties = {
     padding:'2rem',
@@ -12,7 +12,7 @@ const formProperties = {
 }
 
 const titleProperties = {
-    width: "30rem",
+    width: "20rem",
     padding: "0.5rem",
     marginBottom: "1rem"
 }
@@ -30,7 +30,7 @@ const alertProperties = {
 
 
 const formLabelProperties = {
-    textAlign: 'left'
+    margin: 'auto'
 }
 
 function NoteCreator(){
@@ -40,37 +40,32 @@ function NoteCreator(){
     const [title, setTitle] = useState('');
     const [severity, setSeverity] = useState('regular')
 
-    // function handleNoteSave(){
-    //     if(title !== "" && note !== ""){
-    //         localStorage.setItem(title, JSON.stringify(note));   // Add note with the key
-            
-    //         setTitle("");                                        // Setting title and Note back to default null after adding note
-    //         setNote("");
-
-    //         // Hide alert after storing
-    //         setAlertHidden(false);
-    //         window.setTimeout(() => setAlertHidden(true), 1000);
-    //     }
-    // }     
 
     const addNote= async () => {
-        addNotesAPI(title, note, severity).then((response) => {response.json().then((response) => {
-            if(response.isSuccess){
-                setAlertHidden(false);
-                window.setTimeout(() => setAlertHidden(true), 1000);
-                console.log("Notes Added" + response.message)
-            }
-            else{
-                if(response.error.code='23505'){
+        if (title != "" && note != ""){
+            addNotesAPI(title, note, severity).then((response) => {response.json().then((response) => {
+                if(response.isSuccess){
                     setAlertHidden(false);
-
+                    window.setTimeout(() => setAlertHidden(true), 1000);
+                    window.setTimeout(() => window.location.reload(), 500);
+                    console.log("Notes Added" + response.message)
                 }
-                // Pop up message of failure
-                console.log("Notes failed to add" + response.message)
-            }
+                else{
+                    if(response.error.code='23505'){
+                        setAlertHidden(false);
 
+                    }
+                    // Pop up message of failure
+                    console.log("Notes failed to add" + response.message)
+                }
+
+            })
         })
-    })
+        return true
+    }
+    else{
+        return false
+    }
 }
 
     
@@ -82,24 +77,38 @@ return (
         <Alert.Heading>Note added Successfully</Alert.Heading>
     </Alert>
     
-    <Form style={formProperties} >
+    <Form style={formProperties} onSubmit={addNote} >
+    
         
-        <Form.Group className="mb-3 d-flex flex-column" controlId="exampleForm.ControlTextarea1">
-            <Form.Label style={formLabelProperties}><b>Enter Note to Save</b></Form.Label>
+        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+        <Container>
+        <Row>
+            <Col md={6}>
+           
             <Form.Control onChange={(e) => setTitle(e.target.value)} as="textarea" rows={1} placeholder="Enter Note Title" required="true" maxLength={47}  style={titleProperties}/>
-            <Form.Label style={formLabelProperties}><b>Note Severity</b></Form.Label>
-            <Form.Select onChange={(e) => setSeverity(e.target.value)}>
-                    <option value='regular'>Regular</option>
-                    <option value='intermediate'>Intermediate</option>
-                    <option value='critical'>Critical</option>
+            </Col>
+            <Col md={6}>
+            <Form.Select style={{width: "20rem"}} onChange={(e) => setSeverity(e.target.value)}>
+                    <option value='regular'>Regular Note</option>
+                    <option value='important'>Important Note</option>
+                    <option value='critical'>Critical Note</option>
             </Form.Select>
+            </Col>
+        </Row>
+        <Row>
+            <Col md={12}>
             <Form.Control onChange={(e) => setNote(e.target.value)} as="textarea" rows={10} placeholder="Enter Note" required="true"/>
+            </Col>
+        </Row>
+        </Container>
         </Form.Group>
-
-         <Button onClick = {addNote} variant="dark" type="submit" className="buttonHover">
+     
+         <Button variant="dark" type="submit" className="buttonHover">
             Save Note
         </Button>
+        
     </Form>
+    
     </div>
     )
 }

@@ -39,3 +39,20 @@ export async function deleteNotesAPI(title){
 
     }
 )}
+
+// API call to update notes
+export async function updateNoteAPI(id, noteTitle, noteBody, noteSeverity){
+    return await fetch('http://localhost:3000/updatenote', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            'id': id,
+            'title': noteTitle,
+            'notebody': noteBody,
+            'noteimportance': noteSeverity
+        }) 
+    })
+}
