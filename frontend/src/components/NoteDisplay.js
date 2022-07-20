@@ -1,6 +1,7 @@
 import React, {useState,useEffect} from 'react';
 import {ListGroup, Modal, Button, Alert, Table,InputGroup, Form, Container, Row, Col} from 'react-bootstrap';
 import { deleteNotesAPI, getNotesAPI, updateNoteAPI } from '../Services/services';
+import { parseDate } from '../utils/util';
 
 // To set the color for my notes
 const colorNotes = new Map([
@@ -9,14 +10,8 @@ const colorNotes = new Map([
     ["critical", {backgroundColor: "#FB836C"}]]);
 
 const modal_prop = {
-    minWidth: '40rem',
-    position: 'absolute',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    paddingBottom: '2rem',
-    left: '0',
-    right: '0',
-    zIndex: '2',
+    minWidth: '50rem',
+    position: 'absolute', 
 }
 
 const listProperties = {
@@ -24,14 +19,6 @@ const listProperties = {
     textAlign: 'left',
     marginLeft: '5%',
     paddingBottom: "4rem",
-}
-
-const listPropertiesDisable = {
-    width: '30rem',
-    textAlign: 'left',
-    marginLeft: '5%',
-    paddingBottom: "4rem",
-    opacity: '0.8'
 }
 
 const alertProperties = {
@@ -45,29 +32,21 @@ const alertProperties = {
 
 }
 
-const tableProperties ={
-    width: "40rem",
-    backgroundColor: "white",
-    marginLeft: '5%',
-    
-}
 
 function NoteDisplay(){
 
     const [notes, setNotes] = useState([]);
-    
 
     const [alertHidden, setAlertHidden] = useState(true);
 
     const [modalHidden, setModalHidden] = useState(true);      // Handle to show or not show modal
     const [editModal, setEditModal] = useState(true)
 
-    const [noteId, setNoteId] = useState()
+    const [noteId, setNoteId] = useState();                    // Unieue id of note
     const [selNoteTitle, setNoteTitle] = useState();           // set title for the list element selected
     const [selNote, setNote] = useState();                     // set not info got list elelemnt selected
     const [noteSeverity, setNoteSeverity] = useState();        // how severe is the note
-
-
+    const [time, setTime] = useState();
 
     const getNoteList = async () => {
         getNotesAPI().then((response) => {response.json().then((response) => {
@@ -108,16 +87,16 @@ function NoteDisplay(){
 
         setModalHidden(false);
 
-        
-        setNoteId(note.id)
+        setNoteId(note.id);
         setNoteTitle(note.title);
         setNote(note.notebody);
         setNoteSeverity(note.noteimportance);
+        setTime(parseDate(note.modify))
+
     }
 
     // // Close the modal by changing hide state
     function handleClose(){
-
         setModalHidden(true);
         setEditModal(true);
     }
@@ -130,9 +109,8 @@ function NoteDisplay(){
                     setAlertHidden(false);
                     window.setTimeout(() => setAlertHidden(true), 1000);
 
-                    handleClose();
-
-                    getNoteList();
+                    handleClose();     // Close modal
+                    getNoteList();     // Update List
                     
                 }
                 else{
@@ -146,7 +124,6 @@ function NoteDisplay(){
     function handleEdit(){
         setModalHidden(true)
         setEditModal(false)
-        
     }
 
     return (<div className='d-inline'>
@@ -159,7 +136,9 @@ function NoteDisplay(){
             <Modal  show={!modalHidden} onHide={handleClose}>
             <Modal.Dialog backdrop={'static'} className='align-middle modal-show' style={modal_prop}>
                 <Modal.Header style={colorNotes.get(noteSeverity)} closeButton onHide={handleClose} >
-                    <Modal.Title>{selNoteTitle}</Modal.Title>
+                    <Modal.Title style={{marginLeft:"1rem"}}>
+                    <Row>{selNoteTitle}</Row>
+                    <Row className="fst-normal fs-6 ">Last modified : {time}</Row></Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body style={colorNotes.get(noteSeverity)}>
@@ -167,9 +146,8 @@ function NoteDisplay(){
                 </Modal.Body>
 
                 <Modal.Footer style={colorNotes.get(noteSeverity)}>
-                    
-                    <Button variant="primary" onClick={handleEdit}>Edit Note</Button>
-                    <Button variant="danger" onClick={deleteNote}>Delete Note</Button>
+                        <Button variant="primary" onClick={handleEdit}>Edit Note</Button>
+                        <Button variant="danger" onClick={deleteNote}>Delete Note</Button>
                 </Modal.Footer>
 
             </Modal.Dialog>
@@ -207,7 +185,6 @@ function NoteDisplay(){
                 </Modal.Header>
 
                 <Modal.Body>
-               
                                     <Form.Control
                                                 onChange={(e)=>{setNote(e.target.value)}}
                                                 rows={10}

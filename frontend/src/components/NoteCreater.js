@@ -85,7 +85,7 @@ return (
         <Row>
             <Col md={6}>
            
-            <Form.Control onChange={(e) => setTitle(e.target.value)} as="textarea" rows={1} placeholder="Enter Note Title" required="true" maxLength={47}  style={titleProperties}/>
+            <Form.Control onChange={(e) => setTitle(e.target.value)} as="textarea" rows={1} placeholder="Enter Note Title" required={true} maxLength={47}  style={titleProperties}/>
             </Col>
             <Col md={6}>
             <Form.Select style={{width: "20rem"}} onChange={(e) => setSeverity(e.target.value)}>
@@ -97,7 +97,7 @@ return (
         </Row>
         <Row>
             <Col md={12}>
-            <Form.Control onChange={(e) => setNote(e.target.value)} as="textarea" rows={10} placeholder="Enter Note" required="true"/>
+            <Form.Control onChange={(e) => setNote(e.target.value)} as="textarea" rows={10} required={true} placeholder="Enter Note"/>
             </Col>
         </Row>
         </Container>
