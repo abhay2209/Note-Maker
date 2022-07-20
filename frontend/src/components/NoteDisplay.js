@@ -28,7 +28,7 @@ const alertProperties = {
     marginRight: 'auto',
     left: '0',
     right: '0',
-    zIndex: '2'
+    zIndex: '3'
 
 }
 
@@ -38,6 +38,8 @@ function NoteDisplay(){
     const [notes, setNotes] = useState([]);
 
     const [alertHidden, setAlertHidden] = useState(true);
+    const [alertUpdate, setAlertUpdate] = useState(true);
+    const [alertMissing, setAlertMissing] = useState(true);
 
     const [modalHidden, setModalHidden] = useState(true);      // Handle to show or not show modal
     const [editModal, setEditModal] = useState(true)
@@ -62,19 +64,32 @@ function NoteDisplay(){
     }
 
     const updateNote = async () => {
-        console.log(noteId ,selNoteTitle + selNote + noteSeverity)
-        updateNoteAPI(noteId, selNoteTitle, selNote, noteSeverity).then((response) => {response.json().then((response) => {
-                if (response.isSuccess) {
-                    getNoteList();
-                }
-                else{
-                    console.log("Error updating notes" + response.error)
-                }
+        if(selNoteTitle !==  "" && selNote !== ""){
+            // console.log(noteId ,selNoteTitle + selNote + noteSeverity)
+            updateNoteAPI(noteId, selNoteTitle, selNote, noteSeverity).then((response) => {response.json().then((response) => {
+                    if (response.isSuccess) {
+                        getNoteList();
+                    }
+                    else{
+                        console.log("Error updating notes" + response.error)
+                    }
+                })
             })
-        })
-        handleClose()
+            handleClose() 
+
+            setAlertMissing(true);
+
+            // Show success message for adding an update
+            setAlertUpdate(false);
+            window.setTimeout(() => setAlertUpdate(true), 1500);
+        }
+        else{
+            // Show message warning that alert was missing required fields
+            setAlertMissing(false);
+        }
     }
-    
+     
+
 
     useEffect(() => {
         getNoteList()
@@ -99,6 +114,7 @@ function NoteDisplay(){
     function handleClose(){
         setModalHidden(true);
         setEditModal(true);
+        setAlertMissing(true);      //remove any error messages that exist
     }
 
     // // Delete note when delete button is clicked 
@@ -127,18 +143,25 @@ function NoteDisplay(){
     }
 
     return (<div className='d-inline'>
-        
+        {/* Creating alerts for delete, update and mising elements notation*/ }
         <Alert show={!alertHidden} transition={true} variant="danger" style={alertProperties}>
             <Alert.Heading>Note Deleted Successfully</Alert.Heading>
         </Alert>
-        
-        
-            <Modal  show={!modalHidden} onHide={handleClose}>
+
+        <Alert show={!alertUpdate} transition={true} variant="success" style={alertProperties}>
+            <Alert.Heading>Note Updated Successfully</Alert.Heading>
+        </Alert>
+
+
+        {/*Creating modals for showing and updating*/}
+        <Modal  show={!modalHidden} onHide={handleClose}>
             <Modal.Dialog backdrop={'static'} className='align-middle modal-show' style={modal_prop}>
                 <Modal.Header style={colorNotes.get(noteSeverity)} closeButton onHide={handleClose} >
                     <Modal.Title style={{marginLeft:"1rem"}}>
                     <Row>{selNoteTitle}</Row>
-                    <Row className="fst-normal fs-6 ">Last modified : {time}</Row></Modal.Title>
+                    <Row className="fst-normal fs-6 ">Last modified : {time}</Row>
+                    </Modal.Title>
+
                 </Modal.Header>
 
                 <Modal.Body style={colorNotes.get(noteSeverity)}>
@@ -151,9 +174,9 @@ function NoteDisplay(){
                 </Modal.Footer>
 
             </Modal.Dialog>
-            </Modal>
+        </Modal>
 
-            <Modal show={!editModal} onHide={handleClose}>
+        <Modal show={!editModal} onHide={handleClose}>
             <Modal.Dialog backdrop={'static'} className='align-middle modal-show' style={modal_prop}>
                 <Modal.Header closeButton onHide={handleClose} >
                     <Modal.Title>
@@ -164,8 +187,7 @@ function NoteDisplay(){
                                             <Form.Control
                                                         onChange={(e)=>{setNoteTitle(e.target.value)}}
                                                         placeholder="Enter notes title"
-                                                        aria-label="Note title"
-                                                        aria-describedby="basic-addon2"
+                                                        required={true}
                                                         value={selNoteTitle}
                                             />
                                 </InputGroup>
@@ -180,6 +202,7 @@ function NoteDisplay(){
                                         </Form.Select>
                                  </Col>
                                 </Row>
+                                {!alertMissing ? <Row  style={{color: 'red'}} className="fst-normal fs-6">Please make sure to have a title and notes</Row> :null}
                             </Container>
                     </Modal.Title>
                 </Modal.Header>
@@ -190,8 +213,7 @@ function NoteDisplay(){
                                                 rows={10}
                                                 as="textarea"
                                                 placeholder="Enter your notes"
-                                                aria-label="note body"
-                                                aria-describedby="basic-addon2"
+                                                required={true}
                                                 value={selNote}
                                     />
                                  
@@ -201,7 +223,7 @@ function NoteDisplay(){
                 </Modal.Footer>
 
             </Modal.Dialog>
-            </Modal>
+        </Modal>
                  
 
         <div>
