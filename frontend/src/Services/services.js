@@ -1,5 +1,5 @@
-export async function addNotesAPI(title, note, severity){
-    return await fetch('http://localhost:3000/addnote', {
+export async function addNotesAPI(title, note, severity, currentTime){
+    return await fetch('/addnote', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -8,14 +8,15 @@ export async function addNotesAPI(title, note, severity){
         body: JSON.stringify({
             'title': title,
             'notebody': note,  
-            'noteimportance': severity
+            'noteimportance': severity,
+            'modify': currentTime
         }) 
     })
 }
 
 // API call for getting all notes in the database 
 export async function getNotesAPI(){
-    return await fetch('http://localhost:3000/getnotes',{
+    return await fetch('/getnotes',{
             method: 'Get',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,7 +28,7 @@ export async function getNotesAPI(){
 
 // API call to delete a row
 export async function deleteNotesAPI(title){
-    return await fetch('http://localhost:3000/deletenote', {
+    return await fetch('/deletenote', {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -41,8 +42,8 @@ export async function deleteNotesAPI(title){
 )}
 
 // API call to update notes
-export async function updateNoteAPI(id, noteTitle, noteBody, noteSeverity){
-    return await fetch('http://localhost:3000/updatenote', {
+export async function updateNoteAPI(id, noteTitle, noteBody, noteSeverity, currentTime){
+    return await fetch('/updatenote', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -52,7 +53,8 @@ export async function updateNoteAPI(id, noteTitle, noteBody, noteSeverity){
             'id': id,
             'title': noteTitle,
             'notebody': noteBody,
-            'noteimportance': noteSeverity
+            'noteimportance': noteSeverity,
+            'modify': currentTime
         }) 
     })
 }

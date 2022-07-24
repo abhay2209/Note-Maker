@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS notes (id SERIAL PRIMARY KEY, title VARCHAR(255), notebody VARCHAR(255), noteimportance VARCHAR(50), modify VARCHAR(50));

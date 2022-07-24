@@ -1,7 +1,8 @@
 
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import { Button, Form, Alert, Container, Row, Col} from 'react-bootstrap';
-import { addNotesAPI, getNotesAPI} from '../Services/services';
+import { addNotesAPI} from '../Services/services';
+import { getDate } from '../utils/util';
 
 
 const formProperties = {
@@ -28,11 +29,6 @@ const alertProperties = {
     zIndex: '2'
 }
 
-
-const formLabelProperties = {
-    margin: 'auto'
-}
-
 function NoteCreator(){
     const [alertHidden, setAlertHidden] = useState(true);
 
@@ -42,8 +38,9 @@ function NoteCreator(){
 
 
     const addNote= async () => {
-        if (title != "" && note != ""){
-            addNotesAPI(title, note, severity).then((response) => {response.json().then((response) => {
+        if (title !== "" && note !== ""){
+            var currentTime = getDate()
+            addNotesAPI(title, note, severity, currentTime).then((response) => {response.json().then((response) => {
                 if(response.isSuccess){
                     setAlertHidden(false);
                     window.setTimeout(() => setAlertHidden(true), 1000);
@@ -97,7 +94,7 @@ return (
         </Row>
         <Row>
             <Col md={12}>
-            <Form.Control onChange={(e) => setNote(e.target.value)} as="textarea" rows={10} required={true} placeholder="Enter Note"/>
+            <Form.Control onChange={(e) => setNote(e.target.value)} as="textarea" rows={10} maxLength={250} required={true} placeholder="Enter Note"/>
             </Col>
         </Row>
         </Container>

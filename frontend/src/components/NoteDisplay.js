@@ -1,7 +1,7 @@
 import React, {useState,useEffect} from 'react';
 import {ListGroup, Modal, Button, Alert, Table,InputGroup, Form, Container, Row, Col} from 'react-bootstrap';
 import { deleteNotesAPI, getNotesAPI, updateNoteAPI } from '../Services/services';
-import { parseDate } from '../utils/util';
+import { getDate } from '../utils/util';
 
 // To set the color for my notes
 const colorNotes = new Map([
@@ -66,7 +66,8 @@ function NoteDisplay(){
     const updateNote = async () => {
         if(selNoteTitle !==  "" && selNote !== ""){
             // console.log(noteId ,selNoteTitle + selNote + noteSeverity)
-            updateNoteAPI(noteId, selNoteTitle, selNote, noteSeverity).then((response) => {response.json().then((response) => {
+            var currentTime = getDate()
+            updateNoteAPI(noteId, selNoteTitle, selNote, noteSeverity, currentTime).then((response) => {response.json().then((response) => {
                     if (response.isSuccess) {
                         getNoteList();
                     }
@@ -98,15 +99,13 @@ function NoteDisplay(){
     // Show modal when list is clicked
     function showNote(note){
         // Change modal info if different list element is clicked 
-        // var note_info = JSON.parse(localStorage.getItem(note))
-
         setModalHidden(false);
 
         setNoteId(note.id);
         setNoteTitle(note.title);
         setNote(note.notebody);
         setNoteSeverity(note.noteimportance);
-        setTime(parseDate(note.modify))
+        setTime(note.modify)
 
     }
 
@@ -189,6 +188,7 @@ function NoteDisplay(){
                                                         placeholder="Enter notes title"
                                                         required={true}
                                                         value={selNoteTitle}
+                                                        maxLength={47}
                                             />
                                 </InputGroup>
                                 </Col>
@@ -215,6 +215,7 @@ function NoteDisplay(){
                                                 placeholder="Enter your notes"
                                                 required={true}
                                                 value={selNote}
+                                                maxLength={250}
                                     />
                                  
                 </Modal.Body>

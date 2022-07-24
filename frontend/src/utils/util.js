@@ -1,6 +1,8 @@
-export function parseDate(rawDate){
+export function getDate(){
     // var date = new Date(rawDate);
-    var date = new Date(rawDate).toLocaleString('en-US', { timeZone: 'Canada/Pacific' });
-    // var today = date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate()+" "+date.getHours()+":"+date.getMinutes()
-    return date
+    var currentdate = new Date();
+    var datetime =  currentdate.getDay() + "/" + currentdate.getMonth() 
+                    + "/" + currentdate.getFullYear() + " " + currentdate.getHours() + ":" 
+                    + currentdate.getMinutes() 
+    return datetime
 }

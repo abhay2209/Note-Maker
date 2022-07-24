@@ -6,37 +6,40 @@ app.use('/', cors())
 
 const PORT = process.env.PORT || 3000
 const path = require('path')
+const reactBuild = path.join(__dirname, 'build')
+
+app.use(express.static(reactBuild))
 const { Pool } = require('pg')
 
+// var pool = new Pool({
+//     connectionString: 'postgres://ntppecvi:eGj2ZvkW8QlZOGwhCFCvYOcI1NJWFpak@heffalump.db.elephantsql.com/ntppecvi',
+//     host: 'heffalump.db.elephantsql.com',
+//     user: 'ntppecvi',
+//     password: 'eGj2ZvkW8QlZOGwhCFCvYOcI1NJWFpak',
+//     database: 'note_maker'
+//   })
+
 var pool = new Pool({
-    connectionString: 'postgres://ntppecvi:eGj2ZvkW8QlZOGwhCFCvYOcI1NJWFpak@heffalump.db.elephantsql.com/ntppecvi',
-    host: 'heffalump.db.elephantsql.com',
-    user: 'ntppecvi',
-    password: 'eGj2ZvkW8QlZOGwhCFCvYOcI1NJWFpak',
-    database: 'note_maker'
-  })
+    user: 'postgres',
+    host:'db',
+    database: 'notes',
+    password: 'admin',
+})
   
-//   var options = {
-//     dotfiles: 'ignore',
-//     extensions: ['html','htm'],
-//     index: 'start.html'
-//   }
-var users = []
 // parsing body of requests
 app.use(express.json())
 app.use(express.urlencoded( {extended:false} ))
 
-//   // static
-//   app.use('/', express.static('./',options));
 
 app.post('/addnote', async (req,res)=>{
     var title = req.body.title
     var notebody = req.body.notebody
     var noteimportance = req.body.noteimportance
-    console.log(title+" "+notebody+" "+noteimportance)
-    var addusersquery = `INSERT INTO notes VALUES (DEFAULT, $1,$2,$3,NOW())`
+    var currentTime = req.body.modify
+    // console.log(title+" "+notebody+" "+noteimportance)
+    var addusersquery = `INSERT INTO notes VALUES (DEFAULT, $1,$2,$3,$4)`
     try {
-        const result = await pool.query(addusersquery,[title, notebody, noteimportance])
+        const result = await pool.query(addusersquery,[title, notebody, noteimportance, currentTime])
         // respond with json of success
         res.json({
             isSuccess: true,
@@ -101,15 +104,16 @@ app.put('/updatenote', async (req, res)=>{
     var id = parseInt(req.body.id)
     var title = req.body.title
     var noteBody =  req.body.notebody
+    var current = req.body.modify
     var noteSeverity = req.body.noteimportance
     console.log(id)
     
     const update_notes_query = `UPDATE notes 
-                   SET title=$1, notebody=$2, noteimportance=$3, modify=NOW() 
-                   WHERE id=$4`
+                   SET title=$1, notebody=$2, noteimportance=$3, modify=$4 
+                   WHERE id=$5`
 
     try {
-        await pool.query(update_notes_query,[title, noteBody, noteSeverity, id])
+        await pool.query(update_notes_query,[title, noteBody, noteSeverity, current, id])
         res.json({
             isSuccess: true,
             message: "Success",
